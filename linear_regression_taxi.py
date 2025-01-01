@@ -201,3 +201,46 @@ print(f"Predicted fare for a 23-mile, 42-minute trip with 15% tip: ${tipped_fare
 
 plt.ioff()  # Turn off interactive mode
 plt.show(block=True)  # Keep all plots open until manually closed
+
+def format_currency(x):
+    return "${:.2f}".format(x)
+
+def build_batch(df, batch_size):
+    batch = df.sample(n=batch_size).copy()
+    batch.set_index(np.arange(batch_size), inplace=True)
+    return batch
+
+def predict_fare(model, df, features, label, batch_size=50):
+    batch = build_batch(df, batch_size)
+    predicted_values = model.predict_on_batch(x=batch.loc[:, features].values)
+
+    data = {"PREDICTED_FARE": [], "OBSERVED_FARE": [], "L1_LOSS": [],
+        features[0]: [], features[1]: []}
+    for i in range(batch_size):
+        predicted = predicted_values[i][0]
+        observed = batch.at[i, label]
+        data["PREDICTED_FARE"].append(format_currency(predicted))
+        data["OBSERVED_FARE"].append(format_currency(observed))
+        data["L1_LOSS"].append(format_currency(abs(observed - predicted)))
+        data[features[0]].append(batch.at[i, features[0]])
+        data[features[1]].append("{:.2f}".format(batch.at[i, features[1]]))
+
+    output_df = pd.DataFrame(data)
+    return output_df
+
+def show_predictions(output):
+    header = "-" * 80
+    banner = header + "\n" + "|" + "PREDICTIONS".center(78) + "|" + "\n" + header
+    print(banner)
+    print(output)
+    return
+
+output = predict_fare(model_2, training_df, features2, label)
+show_predictions(output)
+
+answer_paragraph ='''
+Based on a random sampling of examples, the model seems to do pretty well
+predicting the fare for a taxi ride. Most of the predicted values do not vary
+significantly from the observed value. You should be able to see this by looking
+at the column L1_LOSS (|observed - predicted|) {data["L1_LOSS]}.
+'''

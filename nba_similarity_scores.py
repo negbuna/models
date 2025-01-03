@@ -2,6 +2,8 @@ import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 from scipy.spatial import distance_matrix
 
+## -- NOT FINISHED --
+
 file_path = "./data/nba_2425_stats.csv"
 data = pd.read_csv(file_path)
 # print("\nFirst few rows of data:")

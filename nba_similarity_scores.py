@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 from scipy.spatial import distance_matrix
 
@@ -33,3 +34,31 @@ t25 = data.head(25)
 t25.dist_df = dist_df.loc[t25['NAME'], t25['NAME']] # locates the top 25 players in the distance matrix
 print(t25.dist_df)
 
+print()
+def trade_probability():
+    # Sample the first random player
+    random_row1 = data.sample(n=1)
+    random_player1 = random_row1['NAME'].values[0] # scalar value aka the player's name
+    
+    # Sample the second random player and ensure it's different from the first
+    while True:
+        random_row2 = data.sample(n=1)
+        random_player2 = random_row2['NAME'].values[0]
+        if random_player2 != random_player1:
+            break
+    
+    print(f"Random player 1: {random_player1}")
+    print(f"Random player 2: {random_player2}")
+    
+    # Find the euclidian distance (similarity) between the two players
+    similarity = dist_df.loc[random_player1, random_player2]
+    print(f"Similarity (Euclidean distance) between {random_player1} and {random_player2}: {similarity}")
+    
+    if similarity < 0.1:
+        print(f"{random_player1} and {random_player2} are very similar and could probably be traded for each other.")
+    elif 0.1 <= similarity < 0.3:
+        print(f"{random_player1} and {random_player2} are somewhat similar and could potentially be traded for each other.")
+    else:
+        print(f"{random_player1} and {random_player2} are not similar and are unlikely to be traded for each other.")
+
+trade_probability()

@@ -37,8 +37,9 @@ print(t25.dist_df)
 print()
 def trade_probability():
     # Sample the first random player
-    random_row1 = data.sample(n=1)
-    random_player1 = random_row1['NAME'].values[0] # scalar value aka the player's name
+    random_row1 = data.sample(n=1) # returns n random rows
+    random_player1 = random_row1['NAME'].values[0] # scalar value of the element in the random row, 'NAME' column 
+
     
     # Sample the second random player and ensure it's different from the first
     while True:

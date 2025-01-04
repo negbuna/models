@@ -1,5 +1,9 @@
 import pandas as pd
+from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error
+import seaborn as sns
 import matplotlib.pyplot as plt
 import numpy as np
 import os
@@ -55,3 +59,48 @@ plt.xlabel('Quality Score')
 
 plt.tight_layout()
 plt.show()
+
+# axis = 0 -> apply drop to rows, axis = 1 -> apply drop to columns
+features = red_df.drop('quality', axis=1) 
+labels = red_df['quality']
+print()
+print(features)
+
+# splitting data
+# tuple unpacking: train_test_split takes features, labels, test_size (decimal -> percentage of data to be test data), random_state (seed)
+X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.2, random_state=42)
+# y values aren't scaled since those are the ones i am trying to predict.
+scalar = MinMaxScaler()
+
+X_train_scaled = scalar.fit_transform(X_train)
+X_test_scaled = scalar.transform(X_test)
+
+model = LinearRegression()
+# training the model with the existing data
+model.fit(X_train_scaled, y_train)
+y_pred = model.predict(X_test_scaled) # predicting y values based on the test data
+mse = mean_squared_error(y_test, y_pred)
+print(f"Mean Squared Error: {mse:.2f}") 
+
+plt.figure(figsize=(10, 6))
+plt.scatter(y_test, y_pred, color='red') # scatterplot of actual vs predicted values
+
+# plotting reference line
+plt.plot([min(y_test), max(y_test)], [min(y_test), max(y_test)], color='blue', linestyle="--", label="Reference (Ideal) Line") # line of best fit
+# first list is range of x values for the reference line, second list is range y values for the reference line.
+# reference line shows how far the models predictions are from being perfect
+# - = solid line, -- = dashed line, -. = dash-dot line, : = dotted line
+
+# plotting regression line
+# sorted_indices = np.argsort(y_test) # sort the indices of y_test, do [::-1] for descending order
+# sorted_y_test = y_test.iloc[sorted_indices] # locate the sorted y_test values
+# sorted_y_pred = y_pred[sorted_indices] # retrieve sorted predicted y_pred values 
+
+# plt.plot(sorted_y_test, sorted_y_pred, color='green', label="Regression Line") # line plot of actual vs predicted values
+
+# labels and title
+plt.xlabel('Actual Quality')    
+plt.ylabel('Predicted Quality')
+plt.title('Actual Quality vs Predicted Quality')
+plt.show()
+
